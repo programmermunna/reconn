@@ -9,8 +9,8 @@ try:
     from .utils import (
         build_envelope,
         command_status,
-        ensure_dir,
         missing_tool_envelope,
+        output_layout,
         run_command,
         tool_path,
         utc_now,
@@ -21,8 +21,8 @@ except ImportError:
     from utils import (
         build_envelope,
         command_status,
-        ensure_dir,
         missing_tool_envelope,
+        output_layout,
         run_command,
         tool_path,
         utc_now,
@@ -57,11 +57,11 @@ def _parse_urls(raw: str) -> list[str]:
 
 
 def run(domain: str, output_dir: str) -> dict[str, Any]:
-    out_dir = ensure_dir(Path(output_dir))
+    dirs = output_layout(output_dir)
     started_at = utc_now()
-    raw_path = out_dir / f"{MODULE}.raw.txt"
-    json_path = out_dir / f"{MODULE}.json"
-    urls_path = out_dir / f"{MODULE}.urls.txt"
+    raw_path = dirs.raw / f"{MODULE}.raw.txt"
+    json_path = dirs.json / f"{MODULE}.json"
+    urls_path = dirs.txt / f"{MODULE}.urls.txt"
     command = _command(domain)
 
     if tool_path(TOOL) is None:
@@ -71,7 +71,7 @@ def run(domain: str, output_dir: str) -> dict[str, Any]:
             domain=domain,
             command=command,
             started_at=started_at,
-            output_dir=out_dir,
+            output_dir=dirs.json,
             json_name=json_path.name,
         )
 

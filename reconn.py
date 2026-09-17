@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from modules.utils import read_lines, utc_now, write_json
+from modules.utils import load_json_file, read_lines, utc_now, write_json, write_text
 
 __version__ = "1.0.0"
 
@@ -154,8 +154,114 @@ def run_domain(
             }
         )
     manifest["finished_at"] = utc_now()
-    write_json(domain_dir / "manifest.json", manifest)
+    json_dir = domain_dir / "json"
+    json_dir.mkdir(parents=True, exist_ok=True)
+    write_json(json_dir / "manifest.json", manifest)
     return manifest, domain_dir
+
+
+HEADLINE = [
+    ("subdomain_enum", "Subdomains discovered"),
+    ("dns_enum", "DNS records"),
+    ("dns_resolve", "Resolved hosts"),
+    ("http_probe", "Live web services"),
+    ("tls_enum", "TLS endpoints"),
+    ("url_archive", "Archived URLs"),
+    ("url_crawl", "Crawled endpoints"),
+    ("port_scan", "Open endpoints"),
+    ("nmap_scan", "Fingerprinted services"),
+    ("dir_scan", "Paths found"),
+    ("xss_scan", "XSS findings"),
+    ("param_vuln", "Parameter vulns"),
+    ("vuln_scan", "Vuln findings"),
+]
+
+
+def _severity_totals(domain_dir: Path, entries: list[dict[str, Any]]) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for entry in entries:
+        envelope = load_json_file(domain_dir / "json" / f"{entry['module']}.json")
+        if not isinstance(envelope, dict):
+            continue
+        counts = envelope.get("metadata", {}).get("severity_counts")
+        if isinstance(counts, dict):
+            for severity, count in counts.items():
+                if isinstance(count, int) and count:
+                    totals[severity] = totals.get(severity, 0) + count
+    return totals
+
+
+def write_summaries(manifest: dict[str, Any], domain_dir: Path) -> tuple[Path, Path]:
+    entries = manifest.get("modules", [])
+    domain = str(manifest.get("domain", "?"))
+    status_counts: dict[str, int] = {}
+    for entry in entries:
+        status = str(entry.get("status") or "?")
+        status_counts[status] = status_counts.get(status, 0) + 1
+    counts_text = ", ".join(f"{n} {s}" for s, n in sorted(status_counts.items()))
+
+    record_map = {str(e.get("module")): int(e.get("record_count") or 0) for e in entries}
+    headline = [(label, record_map[name]) for name, label in HEADLINE if name in record_map]
+    severities = _severity_totals(domain_dir, entries)
+    sev_text = ", ".join(f"{k}: {v}" for k, v in severities.items() if v) or "none"
+
+    width = max((len(str(e.get("module"))) for e in entries), default=6)
+
+    txt_lines = [
+        f"reconn summary — {domain}",
+        f"started:  {manifest.get('started_at', '-')}",
+        f"finished: {manifest.get('finished_at', '-')}",
+        f"modules:  {len(entries)} run — {counts_text}",
+        "",
+        "headline:",
+    ]
+    label_width = max((len(label) for label, _ in headline), default=6)
+    txt_lines += [f"  {label:<{label_width}}  {count}" for label, count in headline]
+    txt_lines += [
+        f"  {'severities':<{label_width}}  {sev_text}",
+        "",
+        "modules:",
+        f"  {'module':<{width}}  {'status':<8}  {'records':>7}  {'time':>8}",
+    ]
+    txt_lines += [
+        f"  {str(e.get('module')):<{width}}  {str(e.get('status')):<8}  {int(e.get('record_count') or 0):>7}  {float(e.get('duration_seconds') or 0):>7.1f}s"
+        for e in entries
+    ]
+    failures = [str(e.get("module")) for e in entries if e.get("status") == "failed"]
+    if failures:
+        txt_lines += ["", f"failed: {', '.join(failures)}"]
+
+    md_lines = [
+        f"# reconn — {domain}",
+        "",
+        f"- **Started:** {manifest.get('started_at', '-')}",
+        f"- **Finished:** {manifest.get('finished_at', '-')}",
+        f"- **Modules:** {len(entries)} run — {counts_text}",
+        "",
+        "## Headline",
+        "",
+        "| Metric | Count |",
+        "|---|---|",
+    ]
+    md_lines += [f"| {label} | {count} |" for label, count in headline]
+    md_lines += [
+        f"| Vulnerability severities | {sev_text} |",
+        "",
+        "## Modules",
+        "",
+        "| Module | Status | Records | Duration |",
+        "|---|---|---|---|",
+    ]
+    md_lines += [
+        f"| {e.get('module')} | {e.get('status')} | {e.get('record_count') or 0} | {float(e.get('duration_seconds') or 0):.1f}s |"
+        for e in entries
+    ]
+    if failures:
+        md_lines += ["", f"**Failed modules:** {', '.join(failures)}"]
+
+    txt_path = write_text(domain_dir / "summary.txt", "\n".join(txt_lines) + "\n")
+    md_path = write_text(domain_dir / "summary.md", "\n".join(md_lines) + "\n")
+    return txt_path, md_path
 
 
 def print_summary(manifest: dict[str, Any], manifest_path: Path) -> None:
@@ -281,10 +387,13 @@ def main(argv: list[str] | None = None) -> int:
             if len(targets) > 1:
                 logger.info("### target %d/%d: %s", index, len(targets), domain)
             manifest, domain_dir = run_domain(domain, selected, output_root)
+            txt_summary, md_summary = write_summaries(manifest, domain_dir)
             if not args.silent:
-                print_summary(manifest, domain_dir / "manifest.json")
+                print_summary(manifest, domain_dir / "json" / "manifest.json")
+                print(paint(f"summary -> {txt_summary}", _DIM))
+                print(paint(f"summary -> {md_summary}", _DIM))
             else:
-                print(f"manifest -> {domain_dir / 'manifest.json'}")
+                print(f"manifest -> {domain_dir / 'json' / 'manifest.json'}")
             statuses = {entry.get("status") for entry in manifest.get("modules", [])}
             if "failed" in statuses:
                 exit_code = 1

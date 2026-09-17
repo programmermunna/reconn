@@ -33,6 +33,24 @@ def ensure_dir(path: Path) -> Path:
     return path
 
 
+@dataclass
+class OutputLayout:
+    root: Path
+    json: Path
+    raw: Path
+    txt: Path
+
+
+def output_layout(output_dir: str | Path) -> OutputLayout:
+    root = ensure_dir(Path(output_dir))
+    return OutputLayout(
+        root=root,
+        json=ensure_dir(root / "json"),
+        raw=ensure_dir(root / "raw"),
+        txt=ensure_dir(root / "txt"),
+    )
+
+
 def tool_path(name: str) -> str | None:
     return shutil.which(name)
 
@@ -111,7 +129,7 @@ def read_lines(path: Path) -> list[str]:
 def collect_lines(output_dir: Path, names: Sequence[str], limit: int = 2000) -> list[str]:
     lines: set[str] = set()
     for name in names:
-        lines.update(read_lines(output_dir / name))
+        lines.update(read_lines(output_dir / "txt" / name))
     return sorted(lines)[:limit]
 
 
