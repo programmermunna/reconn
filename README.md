@@ -1,0 +1,120 @@
+# Info — Modular Recon Architecture
+
+An open-source, modular reconnaissance framework in Python. Each recon step lives in
+its own isolated module, executes CLI tools with verbose flags, and stores both raw
+and normalized JSON output under `output/{domain}/` — designed to scale and to feed
+future analytical/graphing modules.
+
+Pure standard library. No Python dependencies.
+
+## Features
+
+- **Isolated modules** — every recon step is a single file exposing `run(domain, output_dir)`
+- **Uniform JSON envelope** — every module emits the same schema, so downstream parsers
+  never special-case tools
+- **Raw + normalized output** — raw tool output is preserved alongside parsed records
+- **Pipeline chaining** — `http_probe` and `port_scan` automatically consume hosts
+  discovered by `subdomain_enum`
+- **Graceful degradation** — missing binaries, timeouts, and non-zero exits are recorded
+  in the envelope instead of crashing
+- **Run-level manifest** — `manifest.json` aggregates status, record counts, and errors
+  for every module in a run
+
+## Modules
+
+| Module            | Tool        | Command highlights                                                        | Key outputs                                        |
+|-------------------|-------------|---------------------------------------------------------------------------|----------------------------------------------------|
+| `subdomain_enum`  | `subfinder` | `-all -recursive -oJ`                                                     | `subdomain_enum.json`, `subdomain_enum.hosts.txt`  |
+| `dns_enum`        | `dnsrecon`  | `-t std --lifetime 10 -j` (SOA/NS/A/AAAA/MX/SRV/TXT, wildcard, AXFR)        | `dns_enum.json`, `dns_enum.raw.txt`                |
+| `http_probe`      | `httpx`     | `-json -title -tech-detect -tls-grab -cdn -ip -cname -follow-redirects`     | `http_probe.json`, `http_probe.live_urls.txt`      |
+| `port_scan`       | `naabu`     | `-top-ports 1000 -json -verify -rate 3000`                                | `port_scan.json`, `port_scan.open.txt`             |
+
+## Installation
+
+Python >= 3.10 required. External tools must be on `PATH`:
+
+```bash
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+pip install dnsrecon    # or: apt install dnsrecon
+```
+
+> `naabu` needs root or `CAP_NET_RAW` for SYN scanning.
+
+## Usage
+
+```bash
+python3 recon.py -d example.com                       # run all modules
+python3 recon.py -d example.com -m dns_enum           # run a subset
+python3 recon.py -d example.com -o results/ -v        # custom output root, verbose
+python3 recon.py --list                               # list discovered modules
+python3 modules/http_probe.py example.com             # run a module standalone
+```
+
+## Output layout
+
+```
+output/example.com/
+  manifest.json                  # run summary: per-module status, counts, errors
+  subdomain_enum.json            # normalized envelope
+  subdomain_enum.raw.jsonl       # raw tool output
+  subdomain_enum.hosts.txt       # derived: unique host list
+  dns_enum.json
+  dns_enum.raw.json
+  dns_enum.raw.txt
+  http_probe.json
+  http_probe.raw.jsonl
+  http_probe.targets.txt
+  http_probe.live_urls.txt
+  port_scan.json
+  port_scan.raw.jsonl
+  port_scan.targets.txt
+  port_scan.open.txt
+```
+
+## JSON envelope schema
+
+Every module writes `{module}.json` with this structure:
+
+```json
+{
+  "module": "http_probe",
+  "tool": "httpx",
+  "domain": "example.com",
+  "command": ["httpx", "-l", "..."],
+  "started_at": "2026-09-18T01:00:00+00:00",
+  "finished_at": "2026-09-18T01:00:42+00:00",
+  "status": "success | partial | failed | skipped",
+  "record_count": 3,
+  "records": [ { "...": "tool-native fields, verbatim" } ],
+  "errors": [],
+  "raw_files": ["http_probe.raw.jsonl"],
+  "derived_files": ["http_probe.targets.txt", "http_probe.live_urls.txt"],
+  "metadata": { "duration_seconds": 41.8, "returncode": 0 }
+}
+```
+
+## Adding a module
+
+1. Drop `modules/your_module.py` into the package.
+2. Expose `run(domain: str, output_dir: str) -> dict` — build the envelope with
+   helpers from `modules/utils.py` (`run_command`, `build_envelope`, `command_status`,
+   `missing_tool_envelope`, `iter_json_lines`, `write_json`, `write_text`).
+3. `recon.py` auto-discovers it on the next run — no registration needed.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+## 📞 Contact For Developer
+
+- **Portfolio**: [programmermunna.github.io](https://programmermunna.github.io)
+- **GitHub**: [github.com/programmermunna](https://github.com/programmermunna)
+- **LinkedIn**: [linkedin.com/in/programmermunna](https://linkedin.com/in/programmermunna)
+- **Facebook**: [facebook.com/programmermunna](https://facebook.com/programmermunna)
+- **WhatsApp**: [wa.me/+8801938031025](https://wa.me/+8801938031025)
+
+---
