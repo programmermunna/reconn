@@ -1,3 +1,13 @@
+Metadata-Version: 2.4
+Name: reconn
+Version: 1.0.0
+Summary: Modular reconnaissance orchestrator — chains recon tools into a structured JSON pipeline
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
 # Info — Modular Recon Architecture
 
 An open-source, modular reconnaissance framework in Python. Each recon step lives in

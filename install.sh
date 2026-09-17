@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 info() { printf '[+] %s\n' "$*"; }
 warn() { printf '[!] %s\n' "$*"; }
 fail() { printf '[x] %s\n' "$*" >&2; exit 1; }
@@ -80,6 +82,25 @@ install_nmap() {
     esac
 }
 
+install_cli() {
+    info "installing reconn CLI"
+    if ! have pipx; then
+        case "$(pkg_manager)" in
+            apt)    sudo apt-get install -y pipx ;;
+            dnf)    sudo dnf install -y pipx ;;
+            pacman) sudo pacman -S --noconfirm python-pipx ;;
+            brew)   brew install pipx ;;
+            none)   warn "no pipx — install it or run: pip install -e ${SCRIPT_DIR}"; return ;;
+        esac
+    fi
+    pipx install --force "$SCRIPT_DIR" || warn "pipx install failed — run manually: pipx install ${SCRIPT_DIR}"
+    if have reconn; then
+        info "reconn -> $(command -v reconn)"
+    else
+        warn "reconn installed but not on PATH — run: pipx ensurepath"
+    fi
+}
+
 install_whois() {
     if have whois; then
         info "whois already installed"
@@ -137,10 +158,11 @@ main() {
     install_dnsrecon
     install_whois
     install_nmap
+    install_cli
 
     echo
     if verify; then
-        info "done — run: python3 recon.py -d example.com"
+        info "done — run: reconn -d example.com"
     else
         warn "setup finished with missing tools — see warnings above"
         exit 1

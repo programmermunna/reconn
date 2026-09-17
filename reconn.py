@@ -14,7 +14,7 @@ from modules.utils import read_lines, utc_now, write_json
 
 __version__ = "1.0.0"
 
-logger = logging.getLogger("recon")
+logger = logging.getLogger("reconn")
 
 DEFAULT_ORDER = [
     "subdomain_enum",
@@ -35,11 +35,11 @@ DEFAULT_ORDER = [
 RESERVED = {"__init__", "utils"}
 
 BANNER = r"""
-  ____  _____ ____ ___  _   _
- |  _ \| ____/ ___/ _ \| \ | |
- | |_) |  _|| |  | | | |  \| |
- |  _ <| |__| |__| |_| | |\  |
- |_| \_\_____\____\___/|_| \_|  v%s
+  ____  _____ ____ ___  _   _ _   _
+ |  _ \| ____/ ___/ _ \| \ | | \ | |
+ | |_) |  _|| |  | | | |  \| |  \| |
+ |  _ <| |__| |__| |_| | |\  | |\  |
+ |_| \_\_____\____\___/|_| \_|_| \_|  v%s
 
  modular reconnaissance orchestrator
 """ % __version__
@@ -186,15 +186,15 @@ def print_summary(manifest: dict[str, Any], manifest_path: Path) -> None:
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="recon",
+        prog="reconn",
         description="Modular reconnaissance orchestrator — chains recon tools into a structured JSON pipeline.",
         epilog=(
             "examples:\n"
-            "  recon -d example.com                        full pipeline\n"
-            "  recon -d example.com -m subdomain_enum      single module\n"
-            "  recon -l domains.txt -o results/            multi-target\n"
-            "  recon -d example.com -x vuln_scan,param_vuln,xss_scan   passive+recon only\n"
-            "  recon --list-modules                        show available modules\n"
+            "  reconn -d example.com                        full pipeline\n"
+            "  reconn -d example.com -m subdomain_enum      single module\n"
+            "  reconn -l domains.txt -o results/            multi-target\n"
+            "  reconn -d example.com -x vuln_scan,param_vuln,xss_scan   passive+recon only\n"
+            "  reconn --list-modules                        show available modules\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
