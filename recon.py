@@ -23,6 +23,10 @@ DEFAULT_ORDER = [
     "url_archive",
     "url_crawl",
     "port_scan",
+    "nmap_scan",
+    "dir_scan",
+    "xss_scan",
+    "param_vuln",
     "vuln_scan",
 ]
 RESERVED = {"__init__", "utils"}

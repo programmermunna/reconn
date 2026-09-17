@@ -59,8 +59,25 @@ install_pd_tools() {
     go install -v github.com/projectdiscovery/tlsx/cmd/tlsx@latest
     go install -v github.com/projectdiscovery/katana/cmd/katana@latest
     go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-    info "installing gau (go install)"
+    info "installing gau, ffuf, dalfox (go install)"
     go install -v github.com/lc/gau/v2/cmd/gau@latest
+    go install -v github.com/ffuf/ffuf/v2@latest
+    go install -v github.com/hahwul/dalfox/v2@latest
+}
+
+install_nmap() {
+    if have nmap; then
+        info "nmap already installed"
+        return
+    fi
+    info "installing nmap"
+    case "$(pkg_manager)" in
+        apt)    sudo apt-get install -y nmap ;;
+        dnf)    sudo dnf install -y nmap ;;
+        pacman) sudo pacman -S --noconfirm nmap ;;
+        brew)   brew install nmap ;;
+        none)   warn "could not install nmap automatically" ;;
+    esac
 }
 
 install_whois() {
@@ -98,7 +115,7 @@ install_dnsrecon() {
 
 verify() {
     local missing=0 tool
-    for tool in subfinder httpx naabu dnsrecon dnsx tlsx katana gau nuclei whois; do
+    for tool in subfinder httpx naabu dnsrecon dnsx tlsx katana gau nuclei whois ffuf dalfox nmap; do
         if have "$tool"; then
             info "$tool -> $(command -v "$tool")"
         else
@@ -119,6 +136,7 @@ main() {
     install_pd_tools
     install_dnsrecon
     install_whois
+    install_nmap
 
     echo
     if verify; then

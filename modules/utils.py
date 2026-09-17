@@ -108,6 +108,22 @@ def read_lines(path: Path) -> list[str]:
         return []
 
 
+def collect_lines(output_dir: Path, names: Sequence[str], limit: int = 2000) -> list[str]:
+    lines: set[str] = set()
+    for name in names:
+        lines.update(read_lines(output_dir / name))
+    return sorted(lines)[:limit]
+
+
+def collect_param_urls(output_dir: Path, limit: int = 500) -> list[str]:
+    urls = collect_lines(
+        output_dir,
+        ("url_archive.urls.txt", "url_crawl.urls.txt", "http_probe.live_urls.txt"),
+        limit=limit * 4,
+    )
+    return [url for url in urls if "=" in url][:limit]
+
+
 def iter_json_lines(raw: str) -> Iterator[dict[str, Any]]:
     for line in raw.splitlines():
         line = line.strip()

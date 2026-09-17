@@ -33,6 +33,10 @@ Pure standard library. No Python dependencies.
 | `url_archive`     | `gau`       | `--subs --providers wayback,commoncrawl,otx,urlscan`                      | `url_archive.json`, `url_archive.urls.txt`         |
 | `url_crawl`       | `katana`    | `-d 3 -jc -kf all -fs rdn -jsonl`                                         | `url_crawl.json`, `url_crawl.urls.txt`             |
 | `port_scan`       | `naabu`     | `-top-ports 1000 -json -verify -rate 3000`                                | `port_scan.json`, `port_scan.open.txt`             |
+| `nmap_scan`       | `nmap`      | `-sV -sC -Pn -T4 --open -oX` (reuses naabu open ports when present)       | `nmap_scan.json`, `nmap_scan.raw.xml`              |
+| `dir_scan`        | `ffuf`      | `-mc all -ac -of json` per live URL, auto wordlist fallback               | `dir_scan.json`, `dir_scan.found.txt`              |
+| `xss_scan`        | `dalfox`    | `file --format json` on parameterized URLs                                | `xss_scan.json`                                    |
+| `param_vuln`      | `nuclei`    | `-tags lfi,rce,sqli,ssrf,xss` on parameterized + live URLs                | `param_vuln.json` + severity counts                |
 | `vuln_scan`       | `nuclei`    | `-jsonl -severity info..critical -rl 150 -c 50`                           | `vuln_scan.json` + severity counts                 |
 
 ## Installation
@@ -55,9 +59,14 @@ go install -v github.com/projectdiscovery/tlsx/cmd/tlsx@latest
 go install -v github.com/projectdiscovery/katana/cmd/katana@latest
 go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 go install -v github.com/lc/gau/v2/cmd/gau@latest
+go install -v github.com/ffuf/ffuf/v2@latest
+go install -v github.com/hahwul/dalfox/v2@latest
 pip install dnsrecon    # or: apt install dnsrecon
-apt install whois
+apt install whois nmap
 ```
+
+`dir_scan` wordlist priority: `$RECON_WORDLIST` → seclists/dirb system lists →
+bundled `wordlists/common.txt`.
 
 > `naabu` needs root or `CAP_NET_RAW` for SYN scanning.
 
