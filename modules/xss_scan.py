@@ -39,6 +39,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "xss_scan"
+DESCRIPTION = "Reflected XSS detection on parameterized URLs"
 TOOL = "dalfox"
 TIMEOUT_SECONDS = 1200
 MAX_PARAM_URLS = 300

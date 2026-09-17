@@ -33,6 +33,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "whois_lookup"
+DESCRIPTION = "Domain registration metadata: registrar, dates, NS"
 TOOL = "whois"
 TIMEOUT_SECONDS = 60
 

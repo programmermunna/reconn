@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recon-cli"
+version = "1.0.0"
+description = "Modular reconnaissance orchestrator — chains recon tools into a structured JSON pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[project.scripts]
+recon = "recon:main"
+
+[tool.setuptools]
+py-modules = ["recon"]
+packages = ["modules"]
+
+[tool.setuptools.package-data]
+modules = ["wordlists/*.txt"]

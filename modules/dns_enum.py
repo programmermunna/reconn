@@ -35,6 +35,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "dns_enum"
+DESCRIPTION = "DNS records, zone transfer and wildcard checks"
 TOOL = "dnsrecon"
 TIMEOUT_SECONDS = 300
 

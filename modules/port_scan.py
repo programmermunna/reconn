@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "port_scan"
+DESCRIPTION = "Fast SYN port discovery, top 1000 ports"
 TOOL = "naabu"
 TIMEOUT_SECONDS = 900
 UPSTREAM_HOSTS_FILE = "subdomain_enum.hosts.txt"

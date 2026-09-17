@@ -33,6 +33,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "url_archive"
+DESCRIPTION = "Historical URLs from Wayback/CommonCrawl/OTX/URLScan"
 TOOL = "gau"
 TIMEOUT_SECONDS = 300
 

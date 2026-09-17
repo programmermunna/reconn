@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "vuln_scan"
+DESCRIPTION = "Full nuclei vulnerability template scan"
 TOOL = "nuclei"
 TIMEOUT_SECONDS = 1800
 UPSTREAM_URLS_FILE = "http_probe.live_urls.txt"

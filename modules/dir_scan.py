@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "dir_scan"
+DESCRIPTION = "Directory/content fuzzing on live web services"
 TOOL = "ffuf"
 PER_TARGET_TIMEOUT = 120
 MAX_TARGETS = 25
@@ -50,7 +51,7 @@ SYSTEM_WORDLISTS = (
 
 
 def _bundled_wordlist() -> Path:
-    return Path(__file__).resolve().parent.parent / "wordlists" / "common.txt"
+    return Path(__file__).resolve().parent / "wordlists" / "common.txt"
 
 
 def _find_wordlist() -> Path | None:

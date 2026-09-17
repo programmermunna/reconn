@@ -66,18 +66,30 @@ apt install whois nmap
 ```
 
 `dir_scan` wordlist priority: `$RECON_WORDLIST` → seclists/dirb system lists →
-bundled `wordlists/common.txt`.
+bundled `modules/wordlists/common.txt`.
 
 > `naabu` needs root or `CAP_NET_RAW` for SYN scanning.
 
 ## Usage
 
 ```bash
-python3 recon.py -d example.com                       # run all modules
-python3 recon.py -d example.com -m dns_enum           # run a subset
-python3 recon.py -d example.com -o results/ -v        # custom output root, verbose
-python3 recon.py --list                               # list discovered modules
-python3 modules/http_probe.py example.com             # run a module standalone
+python3 recon.py -d example.com                        # full pipeline
+python3 recon.py -d example.com -m subdomain_enum      # single module
+python3 recon.py -l domains.txt -o results/            # multi-target
+python3 recon.py -d example.com -x vuln_scan,param_vuln,xss_scan   # passive + recon only
+python3 recon.py --list-modules                        # modules + descriptions
+python3 recon.py -h                                    # full help
+python3 modules/http_probe.py example.com              # run a module standalone
+```
+
+Flags: `-d/--domain`, `-l/--list FILE`, `-m/--modules`, `-x/--exclude`,
+`-o/--output-root`, `-silent`, `--no-color`, `-v/--verbose`, `--version`.
+
+To install as a `recon` command:
+
+```bash
+pipx install .     # or: pip install -e .
+recon -d example.com
 ```
 
 ## Output layout

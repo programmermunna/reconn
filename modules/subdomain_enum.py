@@ -35,6 +35,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "subdomain_enum"
+DESCRIPTION = "Passive subdomain enumeration across all sources"
 TOOL = "subfinder"
 TIMEOUT_SECONDS = 660
 

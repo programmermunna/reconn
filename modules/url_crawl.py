@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "url_crawl"
+DESCRIPTION = "Web crawling with JS endpoint extraction"
 TOOL = "katana"
 TIMEOUT_SECONDS = 900
 UPSTREAM_URLS_FILE = "http_probe.live_urls.txt"

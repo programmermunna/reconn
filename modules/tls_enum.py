@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "tls_enum"
+DESCRIPTION = "TLS certificate metadata, SANs, JARM fingerprint"
 TOOL = "tlsx"
 TIMEOUT_SECONDS = 600
 UPSTREAM_HOSTS_FILE = "subdomain_enum.hosts.txt"

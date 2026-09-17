@@ -39,6 +39,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "param_vuln"
+DESCRIPTION = "LFI/RCE/SQLi/SSRF/XSS on parameterized URLs"
 TOOL = "nuclei"
 TIMEOUT_SECONDS = 1800
 MAX_TARGETS = 1000

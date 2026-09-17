@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "dns_resolve"
+DESCRIPTION = "Resolve discovered hosts: A/AAAA/CNAME/MX/NS/TXT"
 TOOL = "dnsx"
 TIMEOUT_SECONDS = 300
 UPSTREAM_HOSTS_FILE = "subdomain_enum.hosts.txt"

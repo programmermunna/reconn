@@ -36,6 +36,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "nmap_scan"
+DESCRIPTION = "Service/version/OS fingerprinting on open ports"
 TOOL = "nmap"
 TIMEOUT_SECONDS = 1800
 UPSTREAM_HOSTS_FILE = "subdomain_enum.hosts.txt"

@@ -37,6 +37,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MODULE = "http_probe"
+DESCRIPTION = "HTTP probing: status, title, tech, TLS, CDN"
 TOOL = "httpx"
 TIMEOUT_SECONDS = 600
 UPSTREAM_HOSTS_FILE = "subdomain_enum.hosts.txt"
