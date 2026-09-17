@@ -102,21 +102,23 @@ Flags: `-d/--domain`, `-l/--list FILE`, `-m/--modules`, `-x/--exclude`,
 
 ```
 output/example.com/
-  manifest.json                  # run summary: per-module status, counts, errors
-  subdomain_enum.json            # normalized envelope
-  subdomain_enum.raw.jsonl       # raw tool output
-  subdomain_enum.hosts.txt       # derived: unique host list
-  dns_enum.json
-  dns_enum.raw.json
-  dns_enum.raw.txt
-  http_probe.json
-  http_probe.raw.jsonl
-  http_probe.targets.txt
-  http_probe.live_urls.txt
-  port_scan.json
-  port_scan.raw.jsonl
-  port_scan.targets.txt
-  port_scan.open.txt
+  summary.txt                    # short run summary (plain text)
+  summary.md                     # short run summary (markdown)
+  json/                          # normalized envelopes + run manifest
+    manifest.json                # per-module status, counts, errors, durations
+    subdomain_enum.json
+    dns_enum.json
+    ...                          # one {module}.json per module
+  raw/                           # verbatim tool output
+    subdomain_enum.raw.jsonl
+    nmap_scan.raw.xml
+    ...
+  txt/                           # derived flat lists (feed downstream modules)
+    subdomain_enum.hosts.txt
+    http_probe.live_urls.txt
+    port_scan.open.txt
+    url_crawl.urls.txt
+    ...
 ```
 
 ## JSON envelope schema

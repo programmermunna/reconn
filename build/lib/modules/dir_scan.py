@@ -10,9 +10,9 @@ from typing import Any
 try:
     from .utils import (
         build_envelope,
-        ensure_dir,
         load_json_file,
         missing_tool_envelope,
+        output_layout,
         read_lines,
         run_command,
         tool_path,
@@ -23,9 +23,9 @@ try:
 except ImportError:
     from utils import (
         build_envelope,
-        ensure_dir,
         load_json_file,
         missing_tool_envelope,
+        output_layout,
         read_lines,
         run_command,
         tool_path,
@@ -63,9 +63,9 @@ def _find_wordlist() -> Path | None:
     return None
 
 
-def _collect_targets(domain: str, out_dir: Path) -> list[str]:
+def _collect_targets(domain: str, txt_dir: Path) -> list[str]:
     targets = {f"https://{domain}", f"http://{domain}"}
-    targets.update(read_lines(out_dir / UPSTREAM_URLS_FILE))
+    targets.update(read_lines(txt_dir / UPSTREAM_URLS_FILE))
     return sorted(targets)[:MAX_TARGETS]
 
 
@@ -105,14 +105,14 @@ def _parse_results(raw_path: Path, target: str) -> list[dict[str, Any]]:
 
 
 def run(domain: str, output_dir: str) -> dict[str, Any]:
-    out_dir = ensure_dir(Path(output_dir))
+    dirs = output_layout(output_dir)
     started_at = utc_now()
-    json_path = out_dir / f"{MODULE}.json"
-    raw_path = out_dir / f"{MODULE}.raw.jsonl"
-    targets_path = out_dir / f"{MODULE}.targets.txt"
-    found_path = out_dir / f"{MODULE}.found.txt"
+    json_path = dirs.json / f"{MODULE}.json"
+    raw_path = dirs.raw / f"{MODULE}.raw.jsonl"
+    targets_path = dirs.txt / f"{MODULE}.targets.txt"
+    found_path = dirs.txt / f"{MODULE}.found.txt"
 
-    targets = _collect_targets(domain, out_dir)
+    targets = _collect_targets(domain, dirs.txt)
     write_text(targets_path, "".join(f"{target}\n" for target in targets))
     wordlist = _find_wordlist()
 
@@ -124,7 +124,7 @@ def run(domain: str, output_dir: str) -> dict[str, Any]:
             domain=domain,
             command=probe_command,
             started_at=started_at,
-            output_dir=out_dir,
+            output_dir=dirs.json,
             json_name=json_path.name,
         )
     if wordlist is None:
@@ -150,7 +150,7 @@ def run(domain: str, output_dir: str) -> dict[str, Any]:
     failures = 0
 
     for target in targets:
-        tmp_out = out_dir / f".{MODULE}.{abs(hash(target))}.json"
+        tmp_out = dirs.raw / f".{MODULE}.{abs(hash(target))}.json"
         command = _command(target, wordlist, tmp_out)
         logger.info("[%s] fuzzing %s", MODULE, target)
         result = run_command(command, timeout=PER_TARGET_TIMEOUT)

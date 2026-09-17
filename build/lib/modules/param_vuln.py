@@ -11,9 +11,9 @@ try:
         collect_lines,
         collect_param_urls,
         command_status,
-        ensure_dir,
         iter_json_lines,
         missing_tool_envelope,
+        output_layout,
         run_command,
         tool_path,
         utc_now,
@@ -26,9 +26,9 @@ except ImportError:
         collect_lines,
         collect_param_urls,
         command_status,
-        ensure_dir,
         iter_json_lines,
         missing_tool_envelope,
+        output_layout,
         run_command,
         tool_path,
         utc_now,
@@ -47,9 +47,9 @@ VULN_TAGS = ("lfi", "rce", "sqli", "ssrf", "xss")
 SEVERITIES = ("info", "low", "medium", "high", "critical")
 
 
-def _collect_targets(domain: str, out_dir: Path) -> list[str]:
-    targets = set(collect_param_urls(out_dir, limit=MAX_TARGETS))
-    targets.update(collect_lines(out_dir, ("http_probe.live_urls.txt",), limit=200))
+def _collect_targets(domain: str, root_dir: Path) -> list[str]:
+    targets = set(collect_param_urls(root_dir, limit=MAX_TARGETS))
+    targets.update(collect_lines(root_dir, ("http_probe.live_urls.txt",), limit=200))
     if not targets:
         targets.add(f"https://{domain}")
     return sorted(targets)[:MAX_TARGETS]
@@ -98,13 +98,13 @@ def _severity_counts(records: list[dict[str, Any]]) -> dict[str, int]:
 
 
 def run(domain: str, output_dir: str) -> dict[str, Any]:
-    out_dir = ensure_dir(Path(output_dir))
+    dirs = output_layout(output_dir)
     started_at = utc_now()
-    raw_path = out_dir / f"{MODULE}.raw.jsonl"
-    json_path = out_dir / f"{MODULE}.json"
-    targets_path = out_dir / f"{MODULE}.targets.txt"
+    raw_path = dirs.raw / f"{MODULE}.raw.jsonl"
+    json_path = dirs.json / f"{MODULE}.json"
+    targets_path = dirs.txt / f"{MODULE}.targets.txt"
 
-    targets = _collect_targets(domain, out_dir)
+    targets = _collect_targets(domain, dirs.root)
     write_text(targets_path, "".join(f"{target}\n" for target in targets))
     command = _command(targets_path, raw_path)
 
@@ -115,7 +115,7 @@ def run(domain: str, output_dir: str) -> dict[str, Any]:
             domain=domain,
             command=command,
             started_at=started_at,
-            output_dir=out_dir,
+            output_dir=dirs.json,
             json_name=json_path.name,
         )
 

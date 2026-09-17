@@ -10,8 +10,8 @@ try:
     from .utils import (
         build_envelope,
         command_status,
-        ensure_dir,
         missing_tool_envelope,
+        output_layout,
         read_lines,
         run_command,
         tool_path,
@@ -23,8 +23,8 @@ except ImportError:
     from utils import (
         build_envelope,
         command_status,
-        ensure_dir,
         missing_tool_envelope,
+        output_layout,
         read_lines,
         run_command,
         tool_path,
@@ -44,15 +44,15 @@ UPSTREAM_OPEN_FILE = "port_scan.open.txt"
 MAX_PORTS = 200
 
 
-def _collect_hosts(domain: str, out_dir: Path) -> list[str]:
+def _collect_hosts(domain: str, txt_dir: Path) -> list[str]:
     hosts = {domain}
-    hosts.update(read_lines(out_dir / UPSTREAM_HOSTS_FILE))
+    hosts.update(read_lines(txt_dir / UPSTREAM_HOSTS_FILE))
     return sorted(hosts)
 
 
-def _collect_ports(out_dir: Path) -> list[int]:
+def _collect_ports(txt_dir: Path) -> list[int]:
     ports: set[int] = set()
-    for line in read_lines(out_dir / UPSTREAM_OPEN_FILE):
+    for line in read_lines(txt_dir / UPSTREAM_OPEN_FILE):
         _, _, port = line.rpartition(":")
         if port.isdigit():
             ports.add(int(port))
@@ -128,15 +128,15 @@ def _parse_xml(xml_path: Path) -> list[dict[str, Any]]:
 
 
 def run(domain: str, output_dir: str) -> dict[str, Any]:
-    out_dir = ensure_dir(Path(output_dir))
+    dirs = output_layout(output_dir)
     started_at = utc_now()
-    xml_path = out_dir / f"{MODULE}.raw.xml"
-    txt_path = out_dir / f"{MODULE}.raw.txt"
-    json_path = out_dir / f"{MODULE}.json"
-    targets_path = out_dir / f"{MODULE}.targets.txt"
+    xml_path = dirs.raw / f"{MODULE}.raw.xml"
+    txt_path = dirs.raw / f"{MODULE}.raw.txt"
+    json_path = dirs.json / f"{MODULE}.json"
+    targets_path = dirs.txt / f"{MODULE}.targets.txt"
 
-    hosts = _collect_hosts(domain, out_dir)
-    ports = _collect_ports(out_dir)
+    hosts = _collect_hosts(domain, dirs.txt)
+    ports = _collect_ports(dirs.txt)
     write_text(targets_path, "".join(f"{host}\n" for host in hosts))
     command = _command(targets_path, xml_path, txt_path, ports)
 
@@ -147,7 +147,7 @@ def run(domain: str, output_dir: str) -> dict[str, Any]:
             domain=domain,
             command=command,
             started_at=started_at,
-            output_dir=out_dir,
+            output_dir=dirs.json,
             json_name=json_path.name,
         )
 
