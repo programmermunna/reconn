@@ -13,7 +13,18 @@ from modules.utils import utc_now, write_json
 
 logger = logging.getLogger("recon")
 
-DEFAULT_ORDER = ["subdomain_enum", "dns_enum", "http_probe", "port_scan"]
+DEFAULT_ORDER = [
+    "subdomain_enum",
+    "dns_enum",
+    "dns_resolve",
+    "whois_lookup",
+    "http_probe",
+    "tls_enum",
+    "url_archive",
+    "url_crawl",
+    "port_scan",
+    "vuln_scan",
+]
 RESERVED = {"__init__", "utils"}
 
 

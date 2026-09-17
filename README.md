@@ -26,18 +26,37 @@ Pure standard library. No Python dependencies.
 |-------------------|-------------|---------------------------------------------------------------------------|----------------------------------------------------|
 | `subdomain_enum`  | `subfinder` | `-all -recursive -oJ`                                                     | `subdomain_enum.json`, `subdomain_enum.hosts.txt`  |
 | `dns_enum`        | `dnsrecon`  | `-t std --lifetime 10 -j` (SOA/NS/A/AAAA/MX/SRV/TXT, wildcard, AXFR)        | `dns_enum.json`, `dns_enum.raw.txt`                |
+| `dns_resolve`     | `dnsx`      | `-a -aaaa -cname -mx -ns -txt -resp -json`                                | `dns_resolve.json`, `dns_resolve.resolved.txt`     |
+| `whois_lookup`    | `whois`     | registrar, dates, name servers, statuses parsed to JSON                   | `whois_lookup.json`, `whois_lookup.raw.txt`        |
 | `http_probe`      | `httpx`     | `-json -title -tech-detect -tls-grab -cdn -ip -cname -follow-redirects`     | `http_probe.json`, `http_probe.live_urls.txt`      |
+| `tls_enum`        | `tlsx`      | `-san -cn -so -tv -cipher -ex -ss -mm -jarm`                              | `tls_enum.json`, `tls_enum.names.txt`              |
+| `url_archive`     | `gau`       | `--subs --providers wayback,commoncrawl,otx,urlscan`                      | `url_archive.json`, `url_archive.urls.txt`         |
+| `url_crawl`       | `katana`    | `-d 3 -jc -kf all -fs rdn -jsonl`                                         | `url_crawl.json`, `url_crawl.urls.txt`             |
 | `port_scan`       | `naabu`     | `-top-ports 1000 -json -verify -rate 3000`                                | `port_scan.json`, `port_scan.open.txt`             |
+| `vuln_scan`       | `nuclei`    | `-jsonl -severity info..critical -rl 150 -c 50`                           | `vuln_scan.json` + severity counts                 |
 
 ## Installation
 
-Python >= 3.10 required. External tools must be on `PATH`:
+Python >= 3.10 required. One command installs everything
+(Go toolchain if missing, all four recon tools, and `PATH` setup):
+
+```bash
+./install.sh
+```
+
+Or install the tools manually:
 
 ```bash
 go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+go install -v github.com/projectdiscovery/tlsx/cmd/tlsx@latest
+go install -v github.com/projectdiscovery/katana/cmd/katana@latest
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+go install -v github.com/lc/gau/v2/cmd/gau@latest
 pip install dnsrecon    # or: apt install dnsrecon
+apt install whois
 ```
 
 > `naabu` needs root or `CAP_NET_RAW` for SYN scanning.

@@ -1,7 +1,13 @@
 # Python dependencies: none — the framework runs on the standard library (Python >= 3.10).
 #
-# External recon CLI tools required on PATH:
+# External recon CLI tools required on PATH (or just run ./install.sh):
 #   subfinder  -> go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 #   httpx      -> go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 #   naabu      -> go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+#   dnsx       -> go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+#   tlsx       -> go install -v github.com/projectdiscovery/tlsx/cmd/tlsx@latest
+#   katana     -> go install -v github.com/projectdiscovery/katana/cmd/katana@latest
+#   nuclei     -> go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+#   gau        -> go install -v github.com/lc/gau/v2/cmd/gau@latest
 #   dnsrecon   -> pip install dnsrecon   (or: apt install dnsrecon)
+#   whois      -> apt install whois
